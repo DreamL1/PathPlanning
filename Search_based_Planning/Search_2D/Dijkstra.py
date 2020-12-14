@@ -51,8 +51,9 @@ class Dijkstra(AStar):
                     # best first set the heuristics as the priority 
                     heapq.heappush(self.OPEN, (new_cost, s_n))
 
-        return self.extract_path(self.PARENT), self.CLOSED
-
+        path, dist = self.extract_path(self.PARENT)
+        # return self.extract_path(self.PARENT), dist, self.CLOSED
+        return path, dist, self.CLOSED
 
 def main():
     s_start = (5, 5)
@@ -61,7 +62,8 @@ def main():
     dijkstra = Dijkstra(s_start, s_goal, 'None')
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, visited = dijkstra.searching()
+    path, dist, visited = dijkstra.searching()
+    print("The minimum distance is %8.5f" % dist)
     plot.animation(path, visited, "Dijkstra's")  # animation generate
 
 

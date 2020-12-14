@@ -9,7 +9,7 @@ import math
 import heapq
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
-                "/../../Search_based_Planning/")
+                "/../../Search_based_Planning/")  # 添加目标文件夹
 
 from Search_2D import plotting, env
 
@@ -17,6 +17,7 @@ from Search_2D import plotting, env
 class AStar:
     """AStar set the cost + heuristics as the priority
     """
+
     def __init__(self, s_start, s_goal, heuristic_type):
         self.s_start = s_start
         self.s_goal = s_goal
@@ -29,12 +30,13 @@ class AStar:
 
         self.OPEN = []  # priority queue / OPEN set
         self.CLOSED = []  # CLOSED set / VISITED order
-        self.PARENT = dict()  # recorded parent
+        self.PARENT = dict()  # recorded parent 创建父节点的字典，key为当前节点，value为其父节点
         self.g = dict()  # cost to come
+        self.dist = 0  # minimum distance
 
     def searching(self):
         """
-        A_star Searching.
+        A_star Searching. 算法核心部分
         :return: path, visited order
         """
 
@@ -45,24 +47,26 @@ class AStar:
                        (self.f_value(self.s_start), self.s_start))
 
         while self.OPEN:
-            _, s = heapq.heappop(self.OPEN)
-            self.CLOSED.append(s)
+            _, s = heapq.heappop(self.OPEN)  # 从堆栈中弹出并返回最小值
+            self.CLOSED.append(s)  # 从OPEN中选出最小的s放入CLOSED中
 
             if s == self.s_goal:  # stop condition
                 break
 
-            for s_n in self.get_neighbor(s):
+            for s_n in self.get_neighbor(s):  # s的8个自由度的s_n
                 new_cost = self.g[s] + self.cost(s, s_n)
 
                 if s_n not in self.g:
                     self.g[s_n] = math.inf
 
                 if new_cost < self.g[s_n]:  # conditions for updating Cost
-                    self.g[s_n] = new_cost
-                    self.PARENT[s_n] = s
-                    heapq.heappush(self.OPEN, (self.f_value(s_n), s_n))
+                    self.g[s_n] = new_cost  # 更新代价
+                    self.PARENT[s_n] = s  # 更新父节点
+                    heapq.heappush(self.OPEN, (self.f_value(s_n), s_n))  # 将自由度中的节点的f值放入OPEN中
+        path, dist = self.extract_path(self.PARENT)
 
-        return self.extract_path(self.PARENT), self.CLOSED
+        # return self.extract_path(self.PARENT), dist, self.CLOSED
+        return path, dist, self.CLOSED  # Mengyuan 改
 
     def searching_repeated_astar(self, e):
         """
@@ -181,19 +185,22 @@ class AStar:
 
         path = [self.s_goal]
         s = self.s_goal
-
+        dist = self.dist
         while True:
+            s_eld = s
             s = PARENT[s]
             path.append(s)
+            dist = math.hypot(s[0] - s_eld[0], s[1] - s_eld[1]) + dist
 
             if s == self.s_start:
+                dist = math.hypot(s[0] - s_eld[0], s[1] - s_eld[1]) + dist
                 break
 
-        return list(path)
+        return list(path), dist  # list强制转换为列表
 
     def heuristic(self, s):
         """
-        Calculate heuristic.
+        Calculate heuristic. 预测代价
         :param s: current node (state)
         :return: heuristic function value
         """
@@ -201,20 +208,22 @@ class AStar:
         heuristic_type = self.heuristic_type  # heuristic type
         goal = self.s_goal  # goal node
 
-        if heuristic_type == "manhattan":
+        if heuristic_type == "manhattan":  # 曼哈顿距离
             return abs(goal[0] - s[0]) + abs(goal[1] - s[1])
-        else:
+        else:  # 欧几里得距离
             return math.hypot(goal[0] - s[0], goal[1] - s[1])
 
 
 def main():
     s_start = (5, 5)
     s_goal = (45, 25)
+    # 障碍设置在env里改
 
-    astar = AStar(s_start, s_goal, "euclidean")
+    astar = AStar(s_start, s_goal, "manhattan")
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, visited = astar.searching()
+    path, dist, visited = astar.searching()
+    print("The minimum distance is %8.5f" % dist)
     plot.animation(path, visited, "A*")  # animation
 
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5

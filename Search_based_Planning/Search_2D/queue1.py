@@ -1,6 +1,6 @@
 import collections
 import heapq
-
+# 该文件与python内部命名重复导致调试失败 改为queue1
 
 class QueueFIFO:
     """

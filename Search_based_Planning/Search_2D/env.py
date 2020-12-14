@@ -9,7 +9,7 @@ class Env:
         self.x_range = 51  # size of background
         self.y_range = 31
         self.motions = [(-1, 0), (-1, 1), (0, 1), (1, 1),
-                        (1, 0), (1, -1), (0, -1), (-1, -1)]
+                        (1, 0), (1, -1), (0, -1), (-1, -1)]  # 8个自由度
         self.obs = self.obs_map()
 
     def update_obs(self, obs):
@@ -40,7 +40,7 @@ class Env:
         for i in range(15):
             obs.add((20, i))
 
-        for i in range(15, 30):
+        for i in range(10, 30):
             obs.add((30, i))
         for i in range(16):
             obs.add((40, i))
