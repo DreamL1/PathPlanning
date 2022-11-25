@@ -16,7 +16,7 @@ import math
 import heapq
 
 class BFS(AStar):
-    """BFS add the new visited node in the end of the openset
+    """BFS add the new visited node in the end of the openset 将新节点堆入OPEN的底端，先进先出
     """
     def searching(self):
         """
@@ -48,10 +48,10 @@ class BFS(AStar):
                     self.PARENT[s_n] = s
 
                     # bfs, add new node to the end of the openset
-                    prior = self.OPEN[-1][0]+1 if len(self.OPEN)>0 else 0
+                    prior = self.OPEN[-1][0]+1 if len(self.OPEN) > 0 else 0
                     heapq.heappush(self.OPEN, (prior, s_n))
 
-        return self.extract_path(self.PARENT), self.CLOSED
+        return self.extract_path(self.PARENT), self.CLOSED, self.g[self.s_goal]
 
 
 def main():
@@ -61,7 +61,8 @@ def main():
     bfs = BFS(s_start, s_goal, 'None')
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, visited = bfs.searching()
+    path, visited, dist = bfs.searching()
+    print("The path distance is %8.5f" % dist)
     plot.animation(path, visited, "Breadth-first Searching (BFS)")
 
 

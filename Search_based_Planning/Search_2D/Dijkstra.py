@@ -17,7 +17,8 @@ from Search_2D.Astar import AStar
 
 
 class Dijkstra(AStar):
-    """Dijkstra set the cost as the priority 
+    """Dijkstra set the cost as the priority
+       相比于A*，Dijkstra代价函数不包括h
     """
     def searching(self):
         """
@@ -29,13 +30,13 @@ class Dijkstra(AStar):
         self.g[self.s_start] = 0
         self.g[self.s_goal] = math.inf
         heapq.heappush(self.OPEN,
-                       (0, self.s_start))
+                       (0, self.s_start))  # 将s压入堆中
 
         while self.OPEN:
-            _, s = heapq.heappop(self.OPEN)
-            self.CLOSED.append(s)
+            _, s = heapq.heappop(self.OPEN)  # 小顶堆，优先队列OPEN中弹出s
+            self.CLOSED.append(s)  # 将s加入CLOSE队列
 
-            if s == self.s_goal:
+            if s == self.s_goal:  # 从Dijkstra定义出发，应该当OPEN为空时结束搜索
                 break
 
             for s_n in self.get_neighbor(s):
@@ -51,19 +52,20 @@ class Dijkstra(AStar):
                     # best first set the heuristics as the priority 
                     heapq.heappush(self.OPEN, (new_cost, s_n))
 
-        path, dist = self.extract_path(self.PARENT)
-        # return self.extract_path(self.PARENT), dist, self.CLOSED
-        return path, dist, self.CLOSED
+        return self.extract_path(self.PARENT), self.CLOSED, self.g[self.s_goal]
+
 
 def main():
     s_start = (5, 5)
     s_goal = (45, 25)
+    # s_start = (2, 1)
+    # s_goal = (7, 6)
 
     dijkstra = Dijkstra(s_start, s_goal, 'None')
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, dist, visited = dijkstra.searching()
-    print("The minimum distance is %8.5f" % dist)
+    path, visited, dist = dijkstra.searching()
+    print("The path distance is %8.5f" % dist)
     plot.animation(path, visited, "Dijkstra's")  # animation generate
 
 

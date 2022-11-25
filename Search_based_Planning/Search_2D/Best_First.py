@@ -50,7 +50,7 @@ class BestFirst(AStar):
                     # best first set the heuristics as the priority 
                     heapq.heappush(self.OPEN, (self.heuristic(s_n), s_n))
 
-        return self.extract_path(self.PARENT), self.CLOSED
+        return self.extract_path(self.PARENT), self.CLOSED, self.g[self.s_goal]
 
 
 def main():
@@ -60,8 +60,9 @@ def main():
     BF = BestFirst(s_start, s_goal, 'euclidean')
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, visited = BF.searching()
-    plot.animation(path, visited, "Best-first Searching")  # animation
+    path, visited, dist = BF.searching()
+    print("The path distance is %8.5f" % dist)
+    plot.animation(path, visited, "Greedy Best-first Searching")  # animation
 
 
 if __name__ == '__main__':

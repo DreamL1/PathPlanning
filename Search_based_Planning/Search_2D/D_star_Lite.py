@@ -144,8 +144,11 @@ class DStar:
 
         if heuristic_type == "manhattan":
             return abs(s_goal[0] - s_start[0]) + abs(s_goal[1] - s_start[1])
-        else:
+        if heuristic_type == "euclidean":  # 欧几里得距离
             return math.hypot(s_goal[0] - s_start[0], s_goal[1] - s_start[1])
+        if heuristic_type == "diagonal":  # 对角线距离
+            return (math.sqrt(2) - 2) * min(abs(s_goal[0] - s_start[0]), abs(s_goal[1] - s_start[1])) + \
+                   abs(s_goal[0] - s_start[0]) + abs(s_goal[1] - s_start[1])
 
     def cost(self, s_start, s_goal):
         """
@@ -165,16 +168,16 @@ class DStar:
         if s_start in self.obs or s_end in self.obs:
             return True
 
-        if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
-            if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
-                s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-            else:
-                s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-
-            if s1 in self.obs or s2 in self.obs:
-                return True
+        # if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
+        #     if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
+        #         s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #     else:
+        #         s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #
+        #     if s1 in self.obs or s2 in self.obs:
+        #         return True
 
         return False
 
@@ -228,8 +231,10 @@ class DStar:
 
 
 def main():
-    s_start = (5, 5)
-    s_goal = (45, 25)
+    # s_start = (5, 5)
+    # s_goal = (45, 25)
+    s_start = (2, 1)
+    s_goal = (7, 6)
 
     dstar = DStar(s_start, s_goal, "euclidean")
     dstar.run()

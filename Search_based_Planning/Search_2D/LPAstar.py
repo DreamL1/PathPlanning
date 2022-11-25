@@ -81,6 +81,7 @@ class LPAStar:
             self.fig.canvas.draw_idle()
 
     def ComputeShortestPath(self):
+        # LPA* 算法核心
         while True:
             s, v = self.TopKey()
 
@@ -88,19 +89,19 @@ class LPAStar:
                     self.rhs[self.s_goal] == self.g[self.s_goal]:
                 break
 
-            self.U.pop(s)
+            self.U.pop(s)  # 从U中弹出s
             self.visited.add(s)
 
             if self.g[s] > self.rhs[s]:
 
-                # Condition: over-consistent (eg: deleted obstacles)
+                # Condition: over-consistent (eg: deleted obstacles)  过一致状态，例如删除障碍物
                 # So, rhs[s] decreased -- > rhs[s] < g[s]
-                self.g[s] = self.rhs[s]
+                self.g[s] = self.rhs[s]  # 令g[s]等于rhs[s]
             else:
 
-                # Condition: # under-consistent (eg: added obstacles)
+                # Condition: # under-consistent (eg: added obstacles)  欠一致状态，例如增加障碍物
                 # So, rhs[s] increased --> rhs[s] > g[s]
-                self.g[s] = float("inf")
+                self.g[s] = float("inf")  # 令g[s]等于为无穷，更新s相关参数
                 self.UpdateVertex(s)
 
             for s_n in self.get_neighbor(s):
@@ -108,7 +109,7 @@ class LPAStar:
 
     def UpdateVertex(self, s):
         """
-        update the status and the current cost to come of state s.
+        update the status and the current cost to come of state s. 更新s所在集合和当前传播代价
         :param s: state s
         """
 
@@ -168,10 +169,13 @@ class LPAStar:
         heuristic_type = self.heuristic_type  # heuristic type
         goal = self.s_goal  # goal node
 
-        if heuristic_type == "manhattan":
+        if heuristic_type == "manhattan":  # 曼哈顿距离
             return abs(goal[0] - s[0]) + abs(goal[1] - s[1])
-        else:
+        if heuristic_type == "euclidean":  # 欧几里得距离
             return math.hypot(goal[0] - s[0], goal[1] - s[1])
+        if heuristic_type == "diagonal":  # 对角线距离
+            return (math.sqrt(2) - 2) * min(abs(goal[0] - s[0]), abs(goal[1] - s[1])) + \
+                    abs(goal[0] - s[0]) + abs(goal[1] - s[1])
 
     def cost(self, s_start, s_goal):
         """
@@ -191,16 +195,17 @@ class LPAStar:
         if s_start in self.obs or s_end in self.obs:
             return True
 
-        if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
-            if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
-                s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-            else:
-                s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-
-            if s1 in self.obs or s2 in self.obs:
-                return True
+        # 不需要下面的判断
+        # if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
+        #     if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
+        #         s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #     else:
+        #         s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #
+        #     if s1 in self.obs or s2 in self.obs:
+        #         return True
 
         return False
 
@@ -245,10 +250,12 @@ class LPAStar:
 
 
 def main():
-    x_start = (5, 5)
-    x_goal = (45, 25)
+    # x_start = (5, 5)
+    # x_goal = (45, 25)
+    x_start = (2, 1)
+    x_goal = (7, 6)
 
-    lpastar = LPAStar(x_start, x_goal, "Euclidean")
+    lpastar = LPAStar(x_start, x_goal, "euclidean")  # 这里选择曼哈顿距离貌似有BUG
     lpastar.run()
 
 

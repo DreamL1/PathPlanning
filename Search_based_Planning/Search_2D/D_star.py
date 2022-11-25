@@ -51,15 +51,20 @@ class DStar:
         self.init()
         self.insert(s_end, 0)
 
-        while True:
+        """
+        当OPEN集合不为空，则执行循环；或当起点在CLOSE集合，跳出循环
+        这里建议只要OPEN集合不为空就执行循环，会计算更多父节点信息
+        """
+        while self.OPEN:
             self.process_state()
+
             if self.t[s_start] == 'CLOSED':
                 break
 
         self.path = self.extract_path(s_start, s_end)
         self.Plot.plot_grid("Dynamic A* (D*)")
         self.plot_path(self.path)
-        self.fig.canvas.mpl_connect('button_press_event', self.on_press)
+        self.fig.canvas.mpl_connect('button_press_event', self.on_press)  # 根据设置障碍重新规划路径
         plt.show()
 
     def on_press(self, event):
@@ -75,13 +80,13 @@ class DStar:
 
                 s = self.s_start
                 self.visited = set()
-                self.count += 1
+                self.count += 1  # 这个是干什么的
 
-                while s != self.s_goal:
-                    if self.is_collision(s, self.PARENT[s]):
-                        self.modify(s)
+                while s != self.s_goal:  # 只要s节点不是目标点
+                    if self.is_collision(s, self.PARENT[s]):  # 判断s和他的父节点是否发生碰撞
+                        self.modify(s)  # 如果发生碰撞，则进行调节s
                         continue
-                    s = self.PARENT[s]
+                    s = self.PARENT[s]  # 更新下一个s，直到s是目标点
 
                 self.path = self.extract_path(self.s_start, self.s_goal)
 
@@ -102,14 +107,18 @@ class DStar:
                 return path
 
     def process_state(self):
-        s = self.min_state()  # get node in OPEN set with min k value
+        """
+        D*算法核心
+        """
+
+        s = self.min_state()  # get node in OPEN set with min k value 从OPEN中获取k值最小的节点
         self.visited.add(s)
 
         if s is None:
             return -1  # OPEN set is empty
 
-        k_old = self.get_k_min()  # record the min k value of this iteration (min path cost)
-        self.delete(s)  # move state s from OPEN set to CLOSED set
+        k_old = self.get_k_min()  # record the min k value of this iteration (min path cost) 记录OPEN里的最小k值
+        self.delete(s)  # move state s from OPEN set to CLOSED set 从OPEN里删除节点并放入CLOSED里
 
         # k_min < h[s] --> s: RAISE state (increased cost)
         if k_old < self.h[s]:
@@ -163,7 +172,7 @@ class DStar:
 
     def min_state(self):
         """
-        choose the node with the minimum k value in OPEN set.
+        choose the node with the minimum k value in OPEN set. 从OPEN里选出最小k值的节点
         :return: state
         """
 
@@ -185,17 +194,17 @@ class DStar:
 
     def insert(self, s, h_new):
         """
-        insert node into OPEN set.
+        insert node into OPEN set. 更新节点k值、h值、改标签为OPEN并放入OPEN集合中
         :param s: node
         :param h_new: new or better cost to come value
         """
 
         if self.t[s] == 'NEW':
-            self.k[s] = h_new
+            self.k[s] = h_new  # 如果当前节点标签为NEW，其k值等于h_new
         elif self.t[s] == 'OPEN':
-            self.k[s] = min(self.k[s], h_new)
+            self.k[s] = min(self.k[s], h_new)  # 如果当前节点标签为OPEN，其k值等于k_old和h_new最小的一个
         elif self.t[s] == 'CLOSED':
-            self.k[s] = min(self.h[s], h_new)
+            self.k[s] = min(self.h[s], h_new)  # 如果当前节点标签为CLOSED，其k值等于h_old和h_new最小的一个
 
         self.h[s] = h_new
         self.t[s] = 'OPEN'
@@ -218,7 +227,7 @@ class DStar:
         :param s: is a node whose status is RAISE or LOWER.
         """
 
-        self.modify_cost(s)
+        self.modify_cost(s)  # 遇到障碍时触发，重新计算s的h值
 
         while True:
             k_min = self.process_state()
@@ -261,16 +270,17 @@ class DStar:
         if s_start in self.obs or s_end in self.obs:
             return True
 
-        if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
-            if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
-                s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-            else:
-                s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
-                s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
-
-            if s1 in self.obs or s2 in self.obs:
-                return True
+        # 用来判断节点周围是否有障碍物，如果有，则不走这条路；这里不需要这个判断
+        # if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
+        #     if s_end[0] - s_start[0] == s_start[1] - s_end[1]:
+        #         s1 = (min(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #     else:
+        #         s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
+        #         s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
+        #
+        #     if s1 in self.obs or s2 in self.obs:
+        #         return True
 
         return False
 
@@ -294,8 +304,10 @@ class DStar:
 
 
 def main():
-    s_start = (5, 5)
-    s_goal = (45, 25)
+    s_start = (2, 1)
+    s_goal = (7, 6)
+    # s_start = (5, 5)
+    # s_goal = (45, 25)
     dstar = DStar(s_start, s_goal)
     dstar.run(s_start, s_goal)
 

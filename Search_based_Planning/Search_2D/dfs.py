@@ -42,11 +42,11 @@ class DFS(AStar):
                     self.g[s_n] = new_cost
                     self.PARENT[s_n] = s
 
-                    # dfs, add new node to the front of the openset
+                    # dfs, add new node to the front of the openset 将新节点堆入OPEN的顶端，先进先出
                     prior = self.OPEN[0][0]-1 if len(self.OPEN)>0 else 0
                     heapq.heappush(self.OPEN, (prior, s_n))
 
-        return self.extract_path(self.PARENT), self.CLOSED
+        return self.extract_path(self.PARENT), self.CLOSED, self.g[self.s_goal]
 
 
 def main():
@@ -56,8 +56,9 @@ def main():
     dfs = DFS(s_start, s_goal, 'None')
     plot = plotting.Plotting(s_start, s_goal)
 
-    path, visited = dfs.searching()
+    path, visited, dist = dfs.searching()
     visited = list(dict.fromkeys(visited))
+    print("The path distance is %8.5f" % dist)
     plot.animation(path, visited, "Depth-first Searching (DFS)")  # animation
 
 
