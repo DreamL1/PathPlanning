@@ -218,10 +218,10 @@ class AStar:
 
 
 def main():
-    s_start = (5, 5)  # 起点
-    s_goal = (45, 25)  # 目标点
-    # s_start = (2, 1)
-    # s_goal = (7, 6)
+    # s_start = (5, 5)  # 起点
+    # s_goal = (45, 25)  # 目标点
+    s_start = (2, 1)
+    s_goal = (7, 6)
     # 障碍设置在env里改
 
     astar = AStar(s_start, s_goal, "manhattan")  # 初始化
@@ -238,4 +238,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
 
